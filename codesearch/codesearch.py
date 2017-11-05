@@ -25,8 +25,10 @@ class CodeSearch(object):
 
     # Parse the configuration file.
     self.config_path = os.path.join(self.repo_root, CodeSearch.CONFIG_FILE)
-    with open(self.config_path, 'r') as config_file:
-      self.config = yaml.load(config_file)
+    self.config = {}
+    if os.path.isfile(self.config_path):
+      with open(self.config_path, 'r') as config_file:
+        self.config = yaml.load(config_file)
     self.config = {key: [re.escape(item) for item in value] for key, value in self.config.items() if value}
 
     # Compose the regex for which folders to include in the search.
