@@ -23,6 +23,10 @@ class CodeSearch(object):
   def __init__(self):
     self.flags = ArgumentParser().get_flags()
 
+    # Because -v and -p options are mutually exclusive, there's no need to read and compute the config and regexes.
+    if self.flags.version:
+      return
+
     try:
       self.repo_root = check_output(['git', 'rev-parse', '--show-toplevel']).strip('\n')
     except CalledProcessError:
