@@ -1,0 +1,17 @@
+extensions:
+  - py
+  - html
+  - css
+  - js
+  - java
+  - xml
+  - yaml
+  - json
+  - txt
+
+include_folders:
+  - .
+
+exclude_folders:
+  - venv
+  - .git
