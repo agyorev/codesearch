@@ -1,6 +1,6 @@
 import os
 from setuptools import setup
-from codesearch import __version__
+from codesearch.codesearch import __version__
 
 
 def read(filename):

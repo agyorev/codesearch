@@ -5,6 +5,12 @@ import yaml
 from argumentparser import ArgumentParser
 from subprocess import check_output, Popen, PIPE, CalledProcessError
 
+__title__ = 'codesearch'
+__version__ = '0.1'
+__author__ = 'Aleksandar Gyorev'
+__license__ = 'MIT License'
+__copyright__ = 'Copyright 2017 Aleksandar Gyorev'
+
 
 class CodeSearch(object):
   CONFIG_FILE = 'codesearch.yaml'
@@ -92,7 +98,7 @@ def run():
   cs = CodeSearch()
 
   if cs.flags.version:
-    print codesearch.__title__ + ' v' + codesearch.__version__, 'by', codesearch.__author__
+    print __title__ + ' v' + __version__, 'by', __author__
   else:
     cs.find()
 
