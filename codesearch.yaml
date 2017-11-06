@@ -11,7 +11,7 @@ extensions:
 
 include_folders:
   - .
+  - codesearch
 
 exclude_folders:
   - venv
-  - .git
