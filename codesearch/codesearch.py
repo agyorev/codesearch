@@ -20,6 +20,43 @@ class CodeSearch(object):
   INCLUDE_FOLDERS = 'include_folders'
   EXCLUDE_FOLDERS = 'exclude_folders'
 
+  def __config(self):
+    """Parse the configuration file."""
+    config_path = os.path.join(self.repo_root, CodeSearch.CONFIG_FILE)
+    config = {}
+    if os.path.isfile(config_path):
+      with open(config_path, 'r') as config_file:
+        config = yaml.load(config_file)
+    config = {key: [re.escape(item) for item in value] for key, value in config.items() if value}
+    return config
+
+  def __include_folders_regex(self):
+    """Compose the regex for which folders to include in the search."""
+    if CodeSearch.INCLUDE_FOLDERS not in self.config:
+      folder_regex_list = ['.*']
+    else:
+      folder_regex_list = ['{}/.+'.format(folder) if folder != '\\.' else '[^/]+'
+                           for folder in self.config[CodeSearch.INCLUDE_FOLDERS]]
+    return '^({})'.format('|'.join(folder_regex_list))
+
+  def __file_extensions_regex(self):
+    """Compose the regex for which files to look into, depending on their extension."""
+    if self.flags.extension:
+      file_extensions_regex_list = self.flags.extension
+    else:
+      file_extensions_regex_list = ['.+'] \
+          if CodeSearch.EXTENSIONS not in self.config else '|'.join(self.config[CodeSearch.EXTENSIONS])
+    return '\.({})$'.format(file_extensions_regex_list)
+
+  def __exclude_folders_regex(self):
+    """Compose the regex for which folders to exclude from the search."""
+    if CodeSearch.EXCLUDE_FOLDERS not in self.config:
+      folder_regex_list = ['$^']
+    else:
+      folder_regex_list = ['{}/.+'.format(folder) if folder != '\\.' else '[^/]+$'
+                           for folder in self.config[CodeSearch.EXCLUDE_FOLDERS]]
+    return '^({})'.format('|'.join(folder_regex_list))
+
   def __init__(self):
     self.flags = ArgumentParser().get_flags()
 
@@ -33,35 +70,10 @@ class CodeSearch(object):
       print 'Try running codesearch from a valid git repository.'
       exit(1)
 
-    # Parse the configuration file.
-    self.config_path = os.path.join(self.repo_root, CodeSearch.CONFIG_FILE)
-    self.config = {}
-    if os.path.isfile(self.config_path):
-      with open(self.config_path, 'r') as config_file:
-        self.config = yaml.load(config_file)
-    self.config = {key: [re.escape(item) for item in value] for key, value in self.config.items() if value}
-
-    # Compose the regex for which folders to include in the search.
-    self.config[CodeSearch.INCLUDE_FOLDERS] = \
-        self.config[CodeSearch.INCLUDE_FOLDERS] if CodeSearch.INCLUDE_FOLDERS in self.config else ['\\.']
-    self.include_folders_regex = \
-        ['{}/.*'.format(folder) if folder != '\\.' else '[^/]*' for folder in self.config[CodeSearch.INCLUDE_FOLDERS]]
-    self.include_folders_regex = '^({})'.format('|'.join(self.include_folders_regex))
-
-    # Compose the regex for which files to look into, depending on their extension.
-    if self.flags.extension:
-      self.file_extension_regex = self.flags.extension
-    else:
-      self.config[CodeSearch.EXTENSIONS] = \
-          self.config[CodeSearch.EXTENSIONS] if CodeSearch.EXTENSIONS in self.config else ['.*']
-      self.file_extension_regex = '|'.join(self.config[CodeSearch.EXTENSIONS])
-    self.file_extension_regex = '\.({})$'.format(self.file_extension_regex)
-
-    # Compose the regex for which folders to exclude from the search.
-    if CodeSearch.EXCLUDE_FOLDERS in self.config:
-      self.exclude_folders_regex = '({})'.format('|'.join(self.config[CodeSearch.EXCLUDE_FOLDERS]))
-    else:
-      self.exclude_folders_regex = None
+    self.config = self.__config()
+    self.include_folders_regex = self.__include_folders_regex()
+    self.file_extensions_regex = self.__file_extensions_regex()
+    self.exclude_folders_regex = self.__exclude_folders_regex()
 
   def find(self):
     repo_files = Popen(
@@ -70,12 +82,12 @@ class CodeSearch(object):
         cwd=self.repo_root
     )
     pre_excluded_files = Popen(
-        ['egrep', self.include_folders_regex + self.file_extension_regex],
+        ['egrep', self.include_folders_regex + self.file_extensions_regex],
         stdin=repo_files.stdout,
         stdout=PIPE
     )
     post_excluded_files = Popen(
-        ['egrep', '-v', self.exclude_folders_regex if self.exclude_folders_regex else '$^'],
+        ['egrep', '-v', self.exclude_folders_regex],
         stdin=pre_excluded_files.stdout,
         stdout=PIPE
     )
