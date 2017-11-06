@@ -42,11 +42,11 @@ class CodeSearch(object):
   def __file_extensions_regex(self):
     """Compose the regex for which files to look into, depending on their extension."""
     if self.flags.extension:
-      file_extensions_regex_list = self.flags.extension
+      file_extensions_regex = self.flags.extension
     else:
-      file_extensions_regex_list = ['.+'] \
+      file_extensions_regex = '.+' \
           if CodeSearch.EXTENSIONS not in self.config else '|'.join(self.config[CodeSearch.EXTENSIONS])
-    return '\.({})$'.format(file_extensions_regex_list)
+    return '\.({})$'.format(file_extensions_regex)
 
   def __exclude_folders_regex(self):
     """Compose the regex for which folders to exclude from the search."""
