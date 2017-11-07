@@ -28,6 +28,25 @@ Or maybe you want to look up all of the `edit*` actions. In this case just use a
 $ codesearch -e py -c 1 -p "'edit[^']+'"
 ```
 
+### Config (optional)
+In case you don't want to look through your whole git repository, maybe there are some irrelevant folders (`node_modules`, for example), or you don't want to look through _all_ file types. 
+
+If this sounds like something you'd like, you should create a file called `codesearch.yaml` and put it in the root of your git repository. 
+
+Currently the following properties are allowed:
+```yaml
+extensions:  # only match against files with these extensions, unless specifically set with the -e option.
+  - ...
+
+include_folders:  # only show matches from the following folders
+  - ...
+
+exclude_folders:  # exclude all files from the following folders from the search
+  - ...
+```
+
+You can check out the example [config file](https://github.com/agyorev/codesearch/blob/master/codesearch.yaml), for reference.
+
 ### Usage
 Run within a git repository folder.
 
