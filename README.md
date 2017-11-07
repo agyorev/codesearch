@@ -13,7 +13,7 @@ $ brew install agyorev/tools/codesearch
 ### Use Case
 Let's take an example where the tools really shines. Say you're trying to find out how some RPC action, called `'editUser'` maps from a JavaScript frontend to a Python backend. 
 
-You can first search of all of the occurrences of `'editUser'` in your `js` files, like:
+You can first search for all of the occurrences of `'editUser'` in your `js` files, like:
 ```bash
 $ codesearch -e js -p "'editUser'"
 ```
