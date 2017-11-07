@@ -1,4 +1,4 @@
-## codesearch
+## 🔎 codesearch
 
 Search for patterns and phrases in your git repository code base.
 
